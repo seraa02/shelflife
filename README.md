@@ -193,14 +193,3 @@ Deliberate choice for interview explainability. Custom `useProducts` / `useCateg
 
 ---
 
-## Resume Bullets
-
-Use whichever of these fit your target role:
-
-> - Built **ShelfLife**, a full-stack e-commerce SPA (React 18 + TypeScript + Zustand + Express + Prisma), featuring JWT auth with httpOnly cookies, a 2-step checkout flow with server-side price validation, and a Zustand cart persisted to `localStorage`.
->
-> - Designed a component library (Button, Input, ProductCard, CategoryFilter, Pagination) reused across catalog, search, and detail views; maintained consistent accessibility via semantic HTML, ARIA labels, and keyboard navigation.
->
-> - Implemented a GitHub Actions CI/CD pipeline (lint + Vitest + Supertest on every PR; auto-deploy to Vercel + Render on merge to main), writing 13 tests across unit, component, and API integration layers.
->
-> - Authored a Prisma seed script that fetches product data from a third-party API, normalises it into a relational schema (User, Category, Product, Order, OrderItem), and stores it locally—eliminating runtime dependency on an external service.

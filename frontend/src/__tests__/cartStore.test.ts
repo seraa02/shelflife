@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+
 import { useCartStore } from '@/store/cartStore';
 import type { Product } from '@/types';
 

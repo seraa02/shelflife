@@ -2,7 +2,7 @@
 
 A production-quality e-commerce storefront built as a portfolio project for a Front-End Engineer role. Demonstrates real engineering practice: type-safe component architecture, Zustand state management, JWT-authenticated user flows, and a GitHub Actions CI/CD pipeline.
 
-**Live demo:** _Deploy to Vercel + Render using the instructions below, then add your URL here._
+**Live demo:** [https://shelflife-store.vercel.app](https://shelflife-store.vercel.app) — API: [https://shelflife-api-o62g.onrender.com](https://shelflife-api-o62g.onrender.com)
 
 ---
 
@@ -83,7 +83,7 @@ Browser
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/shelflife.git
+git clone https://github.com/seraa02/shelflife.git
 cd shelflife
 npm install          # installs all workspaces
 ```
@@ -95,7 +95,7 @@ cd backend
 cp .env.example .env   # edit JWT_SECRET to something long and random
 npx prisma generate
 npx prisma db push
-npx tsx prisma/seed.ts # seeds ~44 products from Fake Store API
+npx tsx prisma/seed.ts # seeds 25 products across 4 categories
 npm run dev            # starts on http://localhost:3001
 ```
 

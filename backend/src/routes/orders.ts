@@ -1,7 +1,10 @@
 import { Router, Response } from 'express';
 import { z } from 'zod';
+import { PrismaClient } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+
+type TxClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
 const router = Router();
 
@@ -48,7 +51,7 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
     return;
   }
 
-  const productMap = Object.fromEntries(products.map(p => [p.id, p]));
+  const productMap = Object.fromEntries(products.map((p) => [p.id, p]));
 
   // Validate stock
   for (const item of items) {
@@ -69,7 +72,7 @@ router.post('/', async (req: AuthRequest, res: Response): Promise<void> => {
   const total = subtotal + shippingCost;
 
   // Create order and decrement stock in a transaction
-  const order = await prisma.$transaction(async tx => {
+  const order = await prisma.$transaction(async (tx: TxClient) => {
     const newOrder = await tx.order.create({
       data: {
         userId: req.userId!,

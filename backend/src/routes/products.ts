@@ -18,14 +18,14 @@ router.get('/', async (req: Request, res: Response): Promise<void> => {
   const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10)));
   const skip = (pageNum - 1) * limitNum;
 
-  const where: { category?: { slug: string }; title?: { contains: string } } = {};
+  const where: { category?: { slug: string }; title?: { contains: string; mode: 'insensitive' } } = {};
 
   if (category) {
     where.category = { slug: category };
   }
 
   if (search) {
-    where.title = { contains: search };
+    where.title = { contains: search, mode: 'insensitive' };
   }
 
   const validSortFields: Record<string, boolean> = { createdAt: true, price: true, rating: true, title: true };

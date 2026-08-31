@@ -5,29 +5,6 @@ on:
     branches: [main]
 
 jobs:
-  deploy-frontend:
-    name: Deploy Frontend to Vercel
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Build
-        working-directory: ./frontend
-        run: npm install --legacy-peer-deps && npm run build
-        env:
-          VITE_API_URL: https://shelflife-api-o62g.onrender.com
-
-      - name: Deploy to Vercel
-        working-directory: ./frontend
-        run: |
-          mkdir -p .vercel
-          echo '{"projectId":"${{ secrets.VERCEL_PROJECT_ID }}","orgId":"${{ secrets.VERCEL_ORG_ID }}"}' > .vercel/project.json
-          npx vercel deploy dist --prod --yes --token=${{ secrets.VERCEL_TOKEN }}
-
   deploy-backend:
     name: Deploy Backend to Render
     runs-on: ubuntu-latest
@@ -40,3 +17,6 @@ jobs:
             "https://api.render.com/v1/services/srv-daab78m7bikc73fueisg/deploys")
           echo "Render deploy triggered: HTTP $STATUS"
           if [ "$STATUS" != "201" ]; then exit 1; fi
+
+  # Frontend deploys automatically via Vercel's native GitHub integration.
+  # Connect at: vercel.com → Project Settings → Git → Connect Repository

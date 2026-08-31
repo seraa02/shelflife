@@ -18,7 +18,7 @@ export function Footer() {
             <Link to="/orders" className="hover:text-gray-900 transition-colors">Orders</Link>
           </nav>
           <p className="text-xs text-gray-400">
-            &copy; {new Date().getFullYear()} ShelfLife. Portfolio project.
+            &copy; {new Date().getFullYear()} ShelfLife. Built with React + Node.js.
           </p>
         </div>
       </div>

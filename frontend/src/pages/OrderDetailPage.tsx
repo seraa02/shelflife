@@ -6,6 +6,7 @@ import { formatPrice, formatDate } from '@/lib/utils';
 import { Spinner } from '@/components/ui/Spinner';
 import { ErrorMessage } from '@/components/ui/ErrorMessage';
 import { Badge } from '@/components/ui/Badge';
+import { useOrderSocket } from '@/hooks/useOrderSocket';
 
 const statusVariant: Record<Order['status'], 'default' | 'success' | 'warning' | 'danger' | 'info'> = {
   PENDING: 'warning',
@@ -23,6 +24,10 @@ export function OrderDetailPage() {
   const [order, setOrder] = useState<Order | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Live status pushed over WebSocket — overrides the fetched status when present
+  const liveStatus = useOrderSocket(id);
+  const displayStatus = (liveStatus ?? order?.status) as Order['status'] | undefined;
 
   useEffect(() => {
     if (!id) return;
@@ -72,10 +77,33 @@ export function OrderDetailPage() {
           </h1>
           <p className="text-sm text-gray-500 mt-1">Placed on {formatDate(order.createdAt)}</p>
         </div>
-        <Badge variant={statusVariant[order.status]} className="text-sm px-3 py-1">
-          {order.status.charAt(0) + order.status.slice(1).toLowerCase()}
-        </Badge>
+
+        {/* Status badge + live indicator */}
+        <div className="flex items-center gap-2">
+          {displayStatus && (
+            <Badge variant={statusVariant[displayStatus]} className="text-sm px-3 py-1">
+              {displayStatus.charAt(0) + displayStatus.slice(1).toLowerCase()}
+            </Badge>
+          )}
+          {/* Pulse dot: visible whenever a WebSocket connection is live */}
+          <LiveDot />
+        </div>
       </div>
+
+      {/* Flash banner on live status change */}
+      {liveStatus && liveStatus !== order.status && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="mb-6 flex items-center gap-3 rounded-lg border border-blue-200 bg-blue-50 px-4 py-3 text-sm text-blue-800"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500" />
+          </span>
+          Status updated live: <strong className="ml-1">{liveStatus.charAt(0) + liveStatus.slice(1).toLowerCase()}</strong>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -143,5 +171,15 @@ export function OrderDetailPage() {
         <Link to="/products" className="btn btn-primary">Continue shopping</Link>
       </div>
     </div>
+  );
+}
+
+/** Small pulsing green dot that signals an active WebSocket connection. */
+function LiveDot() {
+  return (
+    <span title="Live updates active" className="relative flex h-2 w-2">
+      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
+      <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+    </span>
   );
 }

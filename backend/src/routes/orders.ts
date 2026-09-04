@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { PrismaClient } from '@prisma/client';
 import { prisma } from '../lib/prisma';
 import { requireAuth, AuthRequest } from '../middleware/auth';
+import { notifyOrderUpdate } from '../lib/wsManager';
 
 type TxClient = Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$use' | '$extends'>;
 
@@ -147,6 +148,44 @@ router.get('/:id', async (req: AuthRequest, res: Response): Promise<void> => {
   }
 
   res.json({ order });
+});
+
+// PATCH /api/orders/:id/status  — update order status and push live event
+// Protected by a simple admin key header so it's safe to demo without a full
+// admin UI. Interviewers can curl it to trigger a live status change.
+const validStatuses = ['PENDING', 'CONFIRMED', 'SHIPPED', 'DELIVERED', 'CANCELLED'] as const;
+
+router.patch('/:id/status', async (req: AuthRequest, res: Response): Promise<void> => {
+  const adminKey = process.env.ADMIN_KEY;
+  const providedKey = req.headers['x-admin-key'];
+
+  // If ADMIN_KEY is set in env, require it; otherwise allow any authenticated user (dev/demo mode)
+  if (adminKey && providedKey !== adminKey) {
+    res.status(403).json({ error: 'Forbidden' });
+    return;
+  }
+
+  const { status } = req.body as { status?: string };
+  if (!status || !validStatuses.includes(status as typeof validStatuses[number])) {
+    res.status(400).json({ error: `status must be one of: ${validStatuses.join(', ')}` });
+    return;
+  }
+
+  const order = await prisma.order.findUnique({ where: { id: req.params.id } });
+  if (!order) {
+    res.status(404).json({ error: 'Order not found' });
+    return;
+  }
+
+  const updated = await prisma.order.update({
+    where: { id: req.params.id },
+    data: { status },
+  });
+
+  // Broadcast to all WebSocket clients watching this order
+  notifyOrderUpdate(req.params.id, status);
+
+  res.json({ order: updated });
 });
 
 export default router;

@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import http from 'http';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
@@ -6,6 +7,7 @@ import cors from 'cors';
 import authRoutes from './routes/auth';
 import productRoutes from './routes/products';
 import orderRoutes from './routes/orders';
+import { createWsServer } from './lib/wsManager';
 
 const app = express();
 const PORT = parseInt(process.env.PORT || '3001', 10);
@@ -41,9 +43,27 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
   res.status(500).json({ error: 'Internal server error' });
 });
 
+// ── HTTP + WebSocket server ────────────────────────────────────────────────
+// We use http.createServer so both Express and the WS server share one port.
+// The WS server is attached via the 'upgrade' event — no separate port needed.
+
+const server = http.createServer(app);
+const wss = createWsServer();
+
+server.on('upgrade', (req, socket, head) => {
+  if (req.url?.startsWith('/ws')) {
+    wss.handleUpgrade(req, socket, head, (ws) => {
+      wss.emit('connection', ws, req);
+    });
+  } else {
+    socket.destroy();
+  }
+});
+
 if (process.env.NODE_ENV !== 'test') {
-  app.listen(PORT, () => {
+  server.listen(PORT, () => {
     console.log(`ShelfLife API running on http://localhost:${PORT}`);
+    console.log(`WebSocket endpoint: ws://localhost:${PORT}/ws`);
   });
 }
 

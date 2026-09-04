@@ -1,0 +1,11 @@
+{
+  "name": "shelflife-order-status-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function that updates ShelfLife order status in PostgreSQL.",
+  "type": "module",
+  "main": "handler.mjs",
+  "dependencies": {
+    "pg": "^8.12.0"
+  },
+  "notes": "@aws-sdk/client-ssm is intentionally omitted — the Node.js 20 Lambda runtime bundles AWS SDK v3, so adding it here would only increase the zip size."
+}

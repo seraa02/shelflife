@@ -1,0 +1,14 @@
+# Copy this file to terraform.tfvars (which is git-ignored) and fill in real values.
+# Never commit terraform.tfvars — secrets would be exposed in git history.
+
+aws_region = "us-east-1"
+project    = "shelflife"
+environment = "dev"
+
+# PostgreSQL connection string — same value as DATABASE_URL in the Express backend.
+# Format: postgresql://<user>:<password>@<host>:<port>/<dbname>?sslmode=require
+database_url = "postgresql://user:password@host:5432/shelflife?sslmode=require"
+
+# Arbitrary secret — send as X-Admin-Key header to authorise status updates.
+# Generate one with: openssl rand -hex 32
+admin_key = "replace-me-with-a-real-secret"

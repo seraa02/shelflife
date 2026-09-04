@@ -1,0 +1,15 @@
+# Terraform state — never commit; use remote backend (S3) in real projects
+terraform.tfstate
+terraform.tfstate.backup
+terraform.tfstate.*.backup
+
+# Real variable values — use terraform.tfvars.example as the template
+*.tfvars
+
+# Terraform working directory
+.terraform/
+.terraform.lock.hcl
+
+# Lambda build artefacts
+lambda-src.zip
+lambda-src/node_modules/
